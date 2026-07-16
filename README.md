@@ -11,18 +11,17 @@ Sistema para controle de gastos residenciais: cadastro de **pessoas**, cadastro 
 
 ## Arquitetura
 
-O projeto segue um único padrão em camadas, coeso do back-end ao front-end, sem
-misturar estilos arquiteturais.
+O projeto segue um único padrão em camadas, coeso do back-end ao front-end, seguindo o mesmo estilo arquitetural.
 
-### Back-end — `Controller → Service → DbContext`
+### Back-end - `Controller → Service → DbContext`
 
 ```
 backend/ControleGastos.Api/
 ├── Domain/          Entidades e regras de domínio (Pessoa, Transacao, TipoTransacao)
-├── Data/            AppDbContext (EF Core) — mapeamento e acesso ao banco
+├── Data/            AppDbContext (EF Core) - mapeamento e acesso ao banco
 ├── DTOs/            Objetos de entrada/saída da API (com validações)
 ├── Services/        Regras de negócio (interfaces + implementações)
-├── Controllers/     Endpoints REST (camada fina que orquestra HTTP → Service)
+├── Controllers/     Endpoints REST (camada fina que orquestra HTTP - Service)
 ├── Exceptions/      Exceções de domínio (NaoEncontrado, RegraDeNegocio)
 ├── Infrastructure/  Tratamento global de exceções (ProblemDetails)
 └── Program.cs       Composição da aplicação (DI, CORS, banco, pipeline)
@@ -32,7 +31,7 @@ backend/ControleGastos.Api/
 > Repository e Unit of Work, portanto os serviços conversam diretamente com ele.
 > Uma camada de repositório adicional seria redundante neste escopo.
 
-### Front-end — camadas espelhando a API
+### Front-end - camadas espelhando a API
 
 ```
 frontend/src/

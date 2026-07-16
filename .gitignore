@@ -1,0 +1,26 @@
+# ----- .NET / back-end -----
+[Bb]in/
+[Oo]bj/
+*.user
+# Banco SQLite gerado em tempo de execução (não versionar dados locais)
+*.db
+*.db-shm
+*.db-wal
+
+# ----- Node / front-end -----
+node_modules/
+dist/
+dist-ssr/
+*.local
+.vite/
+
+# ----- Documentos internos (não publicar) -----
+# Enunciado do desafio e material de referência ficam apenas localmente.
+docs/
+
+# ----- Editores / SO -----
+.vs/
+.vscode/
+.idea/
+*.swp
+.DS_Store

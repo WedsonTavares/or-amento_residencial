@@ -6,7 +6,7 @@ namespace ControleGastos.Api.Controllers;
 
 /// <summary>
 /// Endpoints REST para o cadastro de pessoas (criação, listagem, atualização
-/// e exclusão — a atualização é um recurso adicional ao desafio original).
+/// e exclusão). A atualização é um recurso adicional ao desafio original.
 /// O controller é fino: apenas recebe a requisição, delega ao serviço e devolve
 /// o status HTTP adequado. As validações de entrada rodam automaticamente
 /// graças ao atributo [ApiController].

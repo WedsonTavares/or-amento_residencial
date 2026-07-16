@@ -60,7 +60,7 @@ public class PessoaService : IPessoaService
             ?? throw new RecursoNaoEncontradoException($"Pessoa com id '{id}' não encontrada.");
 
         // Observação: a mudança de idade não revalida retroativamente as
-        // transações já lançadas — a regra do menor de idade é verificada
+        // transações já lançadas. A regra do menor de idade é verificada
         // apenas no momento da criação/atualização de cada transação.
         pessoa.Nome = dto.Nome.Trim();
         pessoa.Idade = dto.Idade;

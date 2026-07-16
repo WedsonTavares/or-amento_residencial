@@ -6,7 +6,7 @@ namespace ControleGastos.Api.DTOs;
 /// <summary>
 /// Dados para atualizar uma transação existente. Recurso adicional ao desafio
 /// original (que dispensava edição de transações). As mesmas regras de
-/// negócio da criação — pessoa existir e menor de idade só registrar despesa —
+/// negócio da criação, pessoa existir e menor de idade só registrar despesa,
 /// são reaplicadas integralmente na atualização.
 /// </summary>
 public class AtualizarTransacaoDto

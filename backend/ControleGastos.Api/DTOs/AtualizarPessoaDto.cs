@@ -5,7 +5,7 @@ namespace ControleGastos.Api.DTOs;
 /// <summary>
 /// Dados para atualizar o nome e a idade de uma pessoa existente.
 /// Recurso adicional ao desafio original (que exigia apenas criação, exclusão
-/// e listagem) — usa as mesmas validações do cadastro.
+/// e listagem). Usa as mesmas validações do cadastro.
 /// </summary>
 public class AtualizarPessoaDto
 {

@@ -7,6 +7,7 @@ import { mensagemDeErro } from '../utils/erros';
 import { CabecalhoPagina } from '../components/CabecalhoPagina';
 import { Alerta } from '../components/Alerta';
 import { EstadoVazio } from '../components/EstadoVazio';
+import { ConfirmModal } from '../components/ConfirmModal';
 import { IconeEditar, IconeTransacoes } from '../components/icons';
 
 /**
@@ -30,6 +31,9 @@ export function TransacoesPage() {
   // Quando preenchido, o formulário está em modo de edição desta transação.
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const emEdicao = editandoId !== null;
+
+  // Modal de confirmação de edição, no lugar do window.confirm nativo.
+  const [confirmandoEdicao, setConfirmandoEdicao] = useState(false);
 
   useEffect(() => {
     carregar();
@@ -82,15 +86,19 @@ export function TransacoesPage() {
     setPessoaId('');
   }
 
-  async function salvar(evento: FormEvent) {
+  function solicitarSalvar(evento: FormEvent) {
     evento.preventDefault();
 
     // Edição exige confirmação explícita antes de persistir a alteração.
     if (emEdicao) {
-      const confirmado = window.confirm(`Salvar as alterações do lançamento "${descricao}"?`);
-      if (!confirmado) return;
+      setConfirmandoEdicao(true);
+      return;
     }
+    efetivarSalvar();
+  }
 
+  async function efetivarSalvar() {
+    setConfirmandoEdicao(false);
     setErro('');
     setSalvando(true);
     try {
@@ -143,7 +151,7 @@ export function TransacoesPage() {
             </p>
           </div>
           <div className="card__body">
-            <form className="form" onSubmit={salvar}>
+            <form className="form" onSubmit={solicitarSalvar}>
               <div className="field field--full">
                 <label className="field__label" htmlFor="descricao">
                   Descrição
@@ -305,6 +313,15 @@ export function TransacoesPage() {
           )}
         </section>
       </div>
+
+      <ConfirmModal
+        aberto={confirmandoEdicao}
+        titulo="Salvar alterações"
+        mensagem={`Salvar as alterações do lançamento "${descricao}"?`}
+        textoConfirmar="Salvar"
+        onConfirmar={efetivarSalvar}
+        onCancelar={() => setConfirmandoEdicao(false)}
+      />
     </>
   );
 }

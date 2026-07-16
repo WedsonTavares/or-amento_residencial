@@ -5,6 +5,7 @@ import { mensagemDeErro } from '../utils/erros';
 import { CabecalhoPagina } from '../components/CabecalhoPagina';
 import { Alerta } from '../components/Alerta';
 import { EstadoVazio } from '../components/EstadoVazio';
+import { ConfirmModal } from '../components/ConfirmModal';
 import { IconeEditar, IconePessoas } from '../components/icons';
 
 /**
@@ -23,6 +24,11 @@ export function PessoasPage() {
   // Quando preenchido, o formulário está em modo de edição desta pessoa.
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const emEdicao = editandoId !== null;
+
+  // Estado dos modais de confirmação (edição e exclusão), no lugar dos
+  // diálogos nativos do navegador (window.confirm).
+  const [confirmandoEdicao, setConfirmandoEdicao] = useState(false);
+  const [pessoaParaExcluir, setPessoaParaExcluir] = useState<Pessoa | null>(null);
 
   // Carrega a lista de pessoas ao abrir a tela.
   useEffect(() => {
@@ -50,15 +56,19 @@ export function PessoasPage() {
     setIdade('');
   }
 
-  async function salvar(evento: FormEvent) {
+  function solicitarSalvar(evento: FormEvent) {
     evento.preventDefault();
 
     // Edição exige confirmação explícita antes de persistir a alteração.
     if (emEdicao) {
-      const confirmado = window.confirm(`Salvar as alterações de "${nome}"?`);
-      if (!confirmado) return;
+      setConfirmandoEdicao(true);
+      return;
     }
+    efetivarSalvar();
+  }
 
+  async function efetivarSalvar() {
+    setConfirmandoEdicao(false);
     setErro('');
     setSalvando(true);
     try {
@@ -76,12 +86,10 @@ export function PessoasPage() {
     }
   }
 
-  async function remover(pessoa: Pessoa) {
-    // Confirmação explícita: a exclusão também apaga as transações da pessoa.
-    const confirmado = window.confirm(
-      `Excluir "${pessoa.nome}"? Todas as transações desta pessoa também serão apagadas.`,
-    );
-    if (!confirmado) return;
+  async function efetivarRemocao() {
+    const pessoa = pessoaParaExcluir;
+    if (!pessoa) return;
+    setPessoaParaExcluir(null);
 
     setErro('');
     try {
@@ -114,7 +122,7 @@ export function PessoasPage() {
             </p>
           </div>
           <div className="card__body">
-            <form className="form" onSubmit={salvar}>
+            <form className="form" onSubmit={solicitarSalvar}>
               <div className="field">
                 <label className="field__label" htmlFor="nome">
                   Nome
@@ -215,7 +223,7 @@ export function PessoasPage() {
                         </button>
                         <button
                           className="btn btn--danger-soft"
-                          onClick={() => remover(pessoa)}
+                          onClick={() => setPessoaParaExcluir(pessoa)}
                           title="Excluir pessoa"
                         >
                           Excluir
@@ -229,6 +237,29 @@ export function PessoasPage() {
           )}
         </section>
       </div>
+
+      <ConfirmModal
+        aberto={confirmandoEdicao}
+        titulo="Salvar alterações"
+        mensagem={`Salvar as alterações de "${nome}"?`}
+        textoConfirmar="Salvar"
+        onConfirmar={efetivarSalvar}
+        onCancelar={() => setConfirmandoEdicao(false)}
+      />
+
+      <ConfirmModal
+        aberto={pessoaParaExcluir !== null}
+        titulo="Excluir pessoa"
+        mensagem={
+          pessoaParaExcluir
+            ? `Excluir "${pessoaParaExcluir.nome}"? Todas as transações desta pessoa também serão apagadas.`
+            : ''
+        }
+        textoConfirmar="Excluir"
+        variante="perigo"
+        onConfirmar={efetivarRemocao}
+        onCancelar={() => setPessoaParaExcluir(null)}
+      />
     </>
   );
 }

@@ -349,6 +349,15 @@ body {
   background: var(--despesa-soft);
 }
 
+.btn--danger {
+  background: var(--despesa);
+  color: #fff;
+}
+
+.btn--danger:not(:disabled):hover {
+  background: var(--despesa-text);
+}
+
 .btn--sm {
   height: 34px;
   padding: 0 12px;
@@ -597,6 +606,94 @@ body {
 .empty__text {
   font-size: 13.5px;
   margin: 0;
+}
+
+/* ========================= Modal de confirmação ==================== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 1000;
+  animation: modal-overlay-in 0.15s ease;
+}
+
+.modal-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  animation: modal-card-in 0.15s ease;
+}
+
+.modal-card__icone {
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+}
+
+.modal-card__icone svg {
+  width: 21px;
+  height: 21px;
+}
+
+.modal-card__icone--padrao {
+  background: var(--brand-soft);
+  color: var(--brand);
+}
+
+.modal-card__icone--perigo {
+  background: var(--despesa-soft);
+  color: var(--despesa-text);
+}
+
+.modal-card__titulo {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.modal-card__mensagem {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0 0 22px;
+}
+
+.modal-card__acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+@keyframes modal-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* ============================ Responsivo ========================== */

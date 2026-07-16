@@ -191,43 +191,46 @@ export function PessoasPage() {
             />
           ) : (
             <div className="table-wrap">
-              <table className="table">
+              <table className="table table--responsive">
                 <thead>
                   <tr>
                     <th>Nome</th>
                     <th>Idade</th>
-                    <th style={{ width: 1 }}></th>
+                    <th className="table__actions-header"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {pessoas.map((pessoa) => (
                     <tr key={pessoa.id}>
-                      <td className="cell-strong">{pessoa.nome}</td>
-                      <td>
-                        {pessoa.idade} anos
-                        {pessoa.idade < 18 && (
-                          <span className="badge badge--pill" style={{ marginLeft: 8 }}>
-                            Menor de idade
-                          </span>
-                        )}
+                      <td className="cell-strong" data-label="Nome">
+                        <span className="table__value">{pessoa.nome}</span>
                       </td>
-                      <td className="num" style={{ whiteSpace: 'nowrap' }}>
-                        <button
-                          className="btn btn--ghost btn--sm"
-                          onClick={() => iniciarEdicao(pessoa)}
-                          title="Editar pessoa"
-                          style={{ marginRight: 8 }}
-                        >
-                          <IconeEditar style={{ width: 15, height: 15 }} />
-                          Editar
-                        </button>
-                        <button
-                          className="btn btn--danger-soft"
-                          onClick={() => setPessoaParaExcluir(pessoa)}
-                          title="Excluir pessoa"
-                        >
-                          Excluir
-                        </button>
+                      <td data-label="Idade">
+                        <span className="table__value table__value--inline">
+                          {pessoa.idade} anos
+                          {pessoa.idade < 18 && (
+                            <span className="badge badge--pill">Menor de idade</span>
+                          )}
+                        </span>
+                      </td>
+                      <td className="num table__actions" data-label="Ações">
+                        <div className="table__action-buttons">
+                          <button
+                            className="btn btn--ghost btn--sm"
+                            onClick={() => iniciarEdicao(pessoa)}
+                            title="Editar pessoa"
+                          >
+                            <IconeEditar style={{ width: 15, height: 15 }} />
+                            Editar
+                          </button>
+                          <button
+                            className="btn btn--danger-soft"
+                            onClick={() => setPessoaParaExcluir(pessoa)}
+                            title="Excluir pessoa"
+                          >
+                            Excluir
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

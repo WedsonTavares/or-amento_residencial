@@ -269,41 +269,52 @@ export function TransacoesPage() {
             />
           ) : (
             <div className="table-wrap">
-              <table className="table">
+              <table className="table table--responsive">
                 <thead>
                   <tr>
                     <th>Descrição</th>
                     <th>Pessoa</th>
                     <th>Tipo</th>
                     <th className="num">Valor</th>
-                    <th style={{ width: 1 }}></th>
+                    <th className="table__actions-header"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {transacoes.map((transacao) => (
                     <tr key={transacao.id}>
-                      <td className="cell-strong">{transacao.descricao}</td>
-                      <td>{transacao.pessoaNome}</td>
-                      <td>
-                        <span className={`badge badge--${transacao.tipo === 'Receita' ? 'receita' : 'despesa'}`}>
-                          <span className="badge__dot" />
-                          {transacao.tipo}
+                      <td className="cell-strong" data-label="Descrição">
+                        <span className="table__value">{transacao.descricao}</span>
+                      </td>
+                      <td data-label="Pessoa">
+                        <span className="table__value">{transacao.pessoaNome}</span>
+                      </td>
+                      <td data-label="Tipo">
+                        <span className="table__value">
+                          <span className={`badge badge--${transacao.tipo === 'Receita' ? 'receita' : 'despesa'}`}>
+                            <span className="badge__dot" />
+                            {transacao.tipo}
+                          </span>
                         </span>
                       </td>
                       <td
                         className={`num amount amount--${transacao.tipo === 'Receita' ? 'receita' : 'despesa'}`}
+                        data-label="Valor"
                       >
-                        {transacao.tipo === 'Receita' ? '+' : '−'} {formatarMoeda(transacao.valor)}
+                        <span className="table__value">
+                          {transacao.tipo === 'Receita' ? '+' : '−'} {formatarMoeda(transacao.valor)}
+                        </span>
                       </td>
-                      <td className="num" style={{ whiteSpace: 'nowrap' }}>
-                        <button
-                          className="btn btn--ghost btn--sm"
-                          onClick={() => iniciarEdicao(transacao)}
-                          title="Editar transação"
-                        >
-                          <IconeEditar style={{ width: 15, height: 15 }} />
-                          Editar
-                        </button>
+                      <td className="num table__actions" data-label="Ações">
+                        <div className="table__action-buttons">
+                          <button
+                            className="btn btn--ghost btn--sm"
+                            onClick={() => iniciarEdicao(transacao)}
+                            title="Editar transação"
+                          >
+                            <IconeEditar style={{ width: 15, height: 15 }} />
+                            Editar
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

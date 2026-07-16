@@ -99,7 +99,7 @@ export function TotaisPage() {
                 />
               ) : (
                 <div className="table-wrap">
-                  <table className="table">
+                  <table className="table table--responsive">
                     <thead>
                       <tr>
                         <th>Pessoa</th>
@@ -111,30 +111,50 @@ export function TotaisPage() {
                     <tbody>
                       {resumo.pessoas.map((pessoa) => (
                         <tr key={pessoa.pessoaId}>
-                          <td className="cell-strong">{pessoa.nome}</td>
-                          <td className="num amount amount--receita">
-                            {formatarMoeda(pessoa.totalReceitas)}
+                          <td className="cell-strong" data-label="Pessoa">
+                            <span className="table__value">{pessoa.nome}</span>
                           </td>
-                          <td className="num amount amount--despesa">
-                            {formatarMoeda(pessoa.totalDespesas)}
+                          <td className="num amount amount--receita" data-label="Receitas">
+                            <span className="table__value">
+                              {formatarMoeda(pessoa.totalReceitas)}
+                            </span>
                           </td>
-                          <td className={`num amount ${classeSaldo(pessoa.saldo)}`}>
-                            {formatarMoeda(pessoa.saldo)}
+                          <td className="num amount amount--despesa" data-label="Despesas">
+                            <span className="table__value">
+                              {formatarMoeda(pessoa.totalDespesas)}
+                            </span>
+                          </td>
+                          <td
+                            className={`num amount ${classeSaldo(pessoa.saldo)}`}
+                            data-label="Saldo"
+                          >
+                            <span className="table__value">{formatarMoeda(pessoa.saldo)}</span>
                           </td>
                         </tr>
                       ))}
                     </tbody>
                     <tfoot>
                       <tr>
-                        <td>Total geral</td>
-                        <td className="num amount--receita">
-                          {formatarMoeda(resumo.totalReceitas)}
+                        <td data-label="Resumo">
+                          <span className="table__value">Total geral</span>
                         </td>
-                        <td className="num amount--despesa">
-                          {formatarMoeda(resumo.totalDespesas)}
+                        <td className="num amount--receita" data-label="Receitas">
+                          <span className="table__value">
+                            {formatarMoeda(resumo.totalReceitas)}
+                          </span>
                         </td>
-                        <td className={`num ${classeSaldo(resumo.saldoLiquido)}`}>
-                          {formatarMoeda(resumo.saldoLiquido)}
+                        <td className="num amount--despesa" data-label="Despesas">
+                          <span className="table__value">
+                            {formatarMoeda(resumo.totalDespesas)}
+                          </span>
+                        </td>
+                        <td
+                          className={`num ${classeSaldo(resumo.saldoLiquido)}`}
+                          data-label="Saldo"
+                        >
+                          <span className="table__value">
+                            {formatarMoeda(resumo.saldoLiquido)}
+                          </span>
                         </td>
                       </tr>
                     </tfoot>

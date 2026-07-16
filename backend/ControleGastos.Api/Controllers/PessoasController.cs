@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace ControleGastos.Api.Controllers;
 
 /// <summary>
-/// Endpoints REST para o cadastro de pessoas (criação, listagem e exclusão).
+/// Endpoints REST para o cadastro de pessoas (criação, listagem, atualização
+/// e exclusão — a atualização é um recurso adicional ao desafio original).
 /// O controller é fino: apenas recebe a requisição, delega ao serviço e devolve
 /// o status HTTP adequado. As validações de entrada rodam automaticamente
 /// graças ao atributo [ApiController].
@@ -36,6 +37,14 @@ public class PessoasController : ControllerBase
         var pessoa = await _pessoaService.CriarAsync(dto);
         // 201 Created + rota de consulta da coleção, seguindo o padrão REST.
         return CreatedAtAction(nameof(Listar), new { id = pessoa.Id }, pessoa);
+    }
+
+    /// <summary>Atualiza o nome e a idade de uma pessoa existente.</summary>
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<PessoaDto>> Atualizar(Guid id, [FromBody] AtualizarPessoaDto dto)
+    {
+        var pessoa = await _pessoaService.AtualizarAsync(id, dto);
+        return Ok(pessoa);
     }
 
     /// <summary>Remove uma pessoa e, em cascata, todas as suas transações.</summary>

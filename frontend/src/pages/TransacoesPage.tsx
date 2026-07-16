@@ -7,11 +7,13 @@ import { mensagemDeErro } from '../utils/erros';
 import { CabecalhoPagina } from '../components/CabecalhoPagina';
 import { Alerta } from '../components/Alerta';
 import { EstadoVazio } from '../components/EstadoVazio';
-import { IconeTransacoes } from '../components/icons';
+import { IconeEditar, IconeTransacoes } from '../components/icons';
 
 /**
- * Tela de cadastro de transações: formulário de criação + listagem.
- * Conforme o desafio, não há edição nem exclusão de transações.
+ * Tela de cadastro de transações: formulário de criação/edição + listagem.
+ * O desafio original exigia apenas criação e listagem; a edição foi
+ * adicionada como recurso extra, reaplicando as mesmas regras de negócio da
+ * criação (pessoa existir; menor de idade só registra despesa).
  */
 export function TransacoesPage() {
   const [transacoes, setTransacoes] = useState<Transacao[]>([]);
@@ -24,6 +26,10 @@ export function TransacoesPage() {
 
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
+
+  // Quando preenchido, o formulário está em modo de edição desta transação.
+  const [editandoId, setEditandoId] = useState<string | null>(null);
+  const emEdicao = editandoId !== null;
 
   useEffect(() => {
     carregar();
@@ -59,21 +65,48 @@ export function TransacoesPage() {
     }
   }, [menorDeIdade]);
 
-  async function criar(evento: FormEvent) {
+  function iniciarEdicao(transacao: Transacao) {
+    setEditandoId(transacao.id);
+    setDescricao(transacao.descricao);
+    setValor(String(transacao.valor));
+    setTipo(transacao.tipo);
+    setPessoaId(transacao.pessoaId);
+    setErro('');
+  }
+
+  function limparFormulario() {
+    setEditandoId(null);
+    setDescricao('');
+    setValor('');
+    setTipo('Despesa');
+    setPessoaId('');
+  }
+
+  async function salvar(evento: FormEvent) {
     evento.preventDefault();
+
+    // Edição exige confirmação explícita antes de persistir a alteração.
+    if (emEdicao) {
+      const confirmado = window.confirm(`Salvar as alterações do lançamento "${descricao}"?`);
+      if (!confirmado) return;
+    }
+
     setErro('');
     setSalvando(true);
     try {
-      await transacoesApi.criar({
-        descricao,
-        valor: Number(valor),
-        tipo,
-        pessoaId,
-      });
-      // Limpa apenas os campos do lançamento, mantendo a pessoa selecionada.
-      setDescricao('');
-      setValor('');
-      setTipo('Despesa');
+      const dados = { descricao, valor: Number(valor), tipo, pessoaId };
+
+      if (emEdicao && editandoId) {
+        await transacoesApi.atualizar(editandoId, dados);
+        // Edição concluída: limpa tudo e volta ao modo de novo lançamento.
+        limparFormulario();
+      } else {
+        await transacoesApi.criar(dados);
+        // Limpa apenas os campos do lançamento, mantendo a pessoa selecionada.
+        setDescricao('');
+        setValor('');
+        setTipo('Despesa');
+      }
       await carregar();
     } catch (e) {
       setErro(mensagemDeErro(e));
@@ -102,13 +135,15 @@ export function TransacoesPage() {
 
         <section className="card">
           <div className="card__header">
-            <h2 className="card__title">Nova transação</h2>
+            <h2 className="card__title">{emEdicao ? 'Editar transação' : 'Nova transação'}</h2>
             <p className="card__desc">
-              Selecione a pessoa, o tipo, e informe a descrição e o valor.
+              {emEdicao
+                ? 'Altere os campos e confirme para salvar.'
+                : 'Selecione a pessoa, o tipo, e informe a descrição e o valor.'}
             </p>
           </div>
           <div className="card__body">
-            <form className="form" onSubmit={criar}>
+            <form className="form" onSubmit={salvar}>
               <div className="field field--full">
                 <label className="field__label" htmlFor="descricao">
                   Descrição
@@ -187,14 +222,24 @@ export function TransacoesPage() {
                 />
               </div>
 
-              <div className="field">
+              <div className="field" style={{ flexDirection: 'row', gap: 10 }}>
                 <button
                   className="btn btn--primary"
                   type="submit"
                   disabled={salvando || semPessoas}
                 >
-                  {salvando ? 'Salvando…' : 'Lançar transação'}
+                  {salvando ? 'Salvando…' : emEdicao ? 'Salvar alterações' : 'Lançar transação'}
                 </button>
+                {emEdicao && (
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
+                    onClick={limparFormulario}
+                    disabled={salvando}
+                  >
+                    Cancelar
+                  </button>
+                )}
               </div>
             </form>
           </div>
@@ -223,6 +268,7 @@ export function TransacoesPage() {
                     <th>Pessoa</th>
                     <th>Tipo</th>
                     <th className="num">Valor</th>
+                    <th style={{ width: 1 }}></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -240,6 +286,16 @@ export function TransacoesPage() {
                         className={`num amount amount--${transacao.tipo === 'Receita' ? 'receita' : 'despesa'}`}
                       >
                         {transacao.tipo === 'Receita' ? '+' : '−'} {formatarMoeda(transacao.valor)}
+                      </td>
+                      <td className="num" style={{ whiteSpace: 'nowrap' }}>
+                        <button
+                          className="btn btn--ghost btn--sm"
+                          onClick={() => iniciarEdicao(transacao)}
+                          title="Editar transação"
+                        >
+                          <IconeEditar style={{ width: 15, height: 15 }} />
+                          Editar
+                        </button>
                       </td>
                     </tr>
                   ))}

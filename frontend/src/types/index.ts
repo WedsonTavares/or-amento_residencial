@@ -17,6 +17,9 @@ export interface CriarPessoa {
   idade: number;
 }
 
+/** Dados para atualizar uma pessoa existente (recurso adicional ao desafio). */
+export type AtualizarPessoa = CriarPessoa;
+
 export interface Transacao {
   id: string;
   descricao: string;
@@ -32,6 +35,9 @@ export interface CriarTransacao {
   tipo: TipoTransacao;
   pessoaId: string;
 }
+
+/** Dados para atualizar uma transação existente (recurso adicional ao desafio). */
+export type AtualizarTransacao = CriarTransacao;
 
 /** Totais consolidados de uma pessoa. */
 export interface TotalPessoa {

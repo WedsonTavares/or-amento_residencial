@@ -54,6 +54,27 @@ public class PessoaService : IPessoaService
         };
     }
 
+    public async Task<PessoaDto> AtualizarAsync(Guid id, AtualizarPessoaDto dto)
+    {
+        var pessoa = await _db.Pessoas.FindAsync(id)
+            ?? throw new RecursoNaoEncontradoException($"Pessoa com id '{id}' não encontrada.");
+
+        // Observação: a mudança de idade não revalida retroativamente as
+        // transações já lançadas — a regra do menor de idade é verificada
+        // apenas no momento da criação/atualização de cada transação.
+        pessoa.Nome = dto.Nome.Trim();
+        pessoa.Idade = dto.Idade;
+
+        await _db.SaveChangesAsync();
+
+        return new PessoaDto
+        {
+            Id = pessoa.Id,
+            Nome = pessoa.Nome,
+            Idade = pessoa.Idade
+        };
+    }
+
     public async Task RemoverAsync(Guid id)
     {
         var pessoa = await _db.Pessoas.FindAsync(id)

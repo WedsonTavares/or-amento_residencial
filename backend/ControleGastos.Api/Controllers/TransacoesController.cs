@@ -5,8 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace ControleGastos.Api.Controllers;
 
 /// <summary>
-/// Endpoints REST para o cadastro de transações. Conforme o desafio, expõe
-/// apenas criação e listagem (sem edição/exclusão).
+/// Endpoints REST para o cadastro de transações. O desafio original exigia
+/// apenas criação e listagem; a atualização foi adicionada como recurso
+/// extra, sem exclusão (não solicitada e fora do escopo original).
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
@@ -37,5 +38,17 @@ public class TransacoesController : ControllerBase
     {
         var transacao = await _transacaoService.CriarAsync(dto);
         return CreatedAtAction(nameof(Listar), new { id = transacao.Id }, transacao);
+    }
+
+    /// <summary>
+    /// Atualiza uma transação existente. As regras de negócio são
+    /// revalidadas exatamente como na criação (pessoa existir; menor de
+    /// idade só registrar despesa).
+    /// </summary>
+    [HttpPut("{id:guid}")]
+    public async Task<ActionResult<TransacaoDto>> Atualizar(Guid id, [FromBody] AtualizarTransacaoDto dto)
+    {
+        var transacao = await _transacaoService.AtualizarAsync(id, dto);
+        return Ok(transacao);
     }
 }

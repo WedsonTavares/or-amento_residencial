@@ -39,17 +39,7 @@ public class TransacaoService : ITransacaoService
 
     public async Task<TransacaoDto> CriarAsync(CriarTransacaoDto dto)
     {
-        // Regra 1: a pessoa informada precisa existir no cadastro.
-        var pessoa = await _db.Pessoas.FindAsync(dto.PessoaId)
-            ?? throw new RecursoNaoEncontradoException(
-                $"Pessoa com id '{dto.PessoaId}' não encontrada.");
-
-        // Regra 2: menor de idade (< 18 anos) só pode registrar despesas.
-        if (pessoa.EhMenorDeIdade && dto.Tipo == TipoTransacao.Receita)
-        {
-            throw new RegraDeNegocioException(
-                "Pessoas menores de 18 anos só podem registrar despesas.");
-        }
+        var pessoa = await ValidarRegrasDeNegocioAsync(dto.PessoaId, dto.Tipo);
 
         var transacao = new Transacao
         {
@@ -63,14 +53,54 @@ public class TransacaoService : ITransacaoService
         _db.Transacoes.Add(transacao);
         await _db.SaveChangesAsync();
 
-        return new TransacaoDto
-        {
-            Id = transacao.Id,
-            Descricao = transacao.Descricao,
-            Valor = transacao.Valor,
-            Tipo = transacao.Tipo,
-            PessoaId = transacao.PessoaId,
-            PessoaNome = pessoa.Nome
-        };
+        return MapearParaDto(transacao, pessoa);
     }
+
+    public async Task<TransacaoDto> AtualizarAsync(Guid id, AtualizarTransacaoDto dto)
+    {
+        var transacao = await _db.Transacoes.FindAsync(id)
+            ?? throw new RecursoNaoEncontradoException($"Transação com id '{id}' não encontrada.");
+
+        // Reaplica as mesmas regras de negócio da criação, mesmo que a
+        // pessoa vinculada tenha sido trocada na edição.
+        var pessoa = await ValidarRegrasDeNegocioAsync(dto.PessoaId, dto.Tipo);
+
+        transacao.Descricao = dto.Descricao.Trim();
+        transacao.Valor = dto.Valor;
+        transacao.Tipo = dto.Tipo;
+        transacao.PessoaId = pessoa.Id;
+
+        await _db.SaveChangesAsync();
+
+        return MapearParaDto(transacao, pessoa);
+    }
+
+    /// <summary>
+    /// Valida as regras de negócio comuns à criação e à atualização:
+    /// a pessoa precisa existir e, se for menor de idade, o tipo não pode ser receita.
+    /// </summary>
+    private async Task<Pessoa> ValidarRegrasDeNegocioAsync(Guid pessoaId, TipoTransacao tipo)
+    {
+        var pessoa = await _db.Pessoas.FindAsync(pessoaId)
+            ?? throw new RecursoNaoEncontradoException(
+                $"Pessoa com id '{pessoaId}' não encontrada.");
+
+        if (pessoa.EhMenorDeIdade && tipo == TipoTransacao.Receita)
+        {
+            throw new RegraDeNegocioException(
+                "Pessoas menores de 18 anos só podem registrar despesas.");
+        }
+
+        return pessoa;
+    }
+
+    private static TransacaoDto MapearParaDto(Transacao transacao, Pessoa pessoa) => new()
+    {
+        Id = transacao.Id,
+        Descricao = transacao.Descricao,
+        Valor = transacao.Valor,
+        Tipo = transacao.Tipo,
+        PessoaId = transacao.PessoaId,
+        PessoaNome = pessoa.Nome
+    };
 }

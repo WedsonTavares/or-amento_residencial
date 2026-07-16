@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text.Json.Serialization;
 using ControleGastos.Api.Data;
 using ControleGastos.Api.Infrastructure;
@@ -43,7 +44,17 @@ builder.Services.AddControllers()
 
 // Swagger para documentação/testes manuais da API.
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Inclui os comentários XML (summaries) do código na documentação do Swagger,
+    // deixando cada endpoint e modelo descrito diretamente na interface.
+    var arquivoXml = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var caminhoXml = Path.Combine(AppContext.BaseDirectory, arquivoXml);
+    if (File.Exists(caminhoXml))
+    {
+        options.IncludeXmlComments(caminhoXml);
+    }
+});
 
 // --- CORS -------------------------------------------------------------------
 // Libera apenas a origem do front em desenvolvimento (Vite = porta 5173).

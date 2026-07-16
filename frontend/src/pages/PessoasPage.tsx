@@ -5,11 +5,13 @@ import { mensagemDeErro } from '../utils/erros';
 import { CabecalhoPagina } from '../components/CabecalhoPagina';
 import { Alerta } from '../components/Alerta';
 import { EstadoVazio } from '../components/EstadoVazio';
-import { IconePessoas } from '../components/icons';
+import { IconeEditar, IconePessoas } from '../components/icons';
 
 /**
- * Tela de cadastro de pessoas: formulário de criação + tabela com listagem
- * e exclusão. Ao excluir uma pessoa, o back-end remove suas transações em cascata.
+ * Tela de cadastro de pessoas: formulário de criação/edição + tabela com
+ * listagem e exclusão. Ao excluir uma pessoa, o back-end remove suas
+ * transações em cascata. A edição (nome/idade) é um recurso adicional ao
+ * desafio original, que exigia apenas criação, exclusão e listagem.
  */
 export function PessoasPage() {
   const [pessoas, setPessoas] = useState<Pessoa[]>([]);
@@ -17,6 +19,10 @@ export function PessoasPage() {
   const [idade, setIdade] = useState('');
   const [erro, setErro] = useState('');
   const [salvando, setSalvando] = useState(false);
+
+  // Quando preenchido, o formulário está em modo de edição desta pessoa.
+  const [editandoId, setEditandoId] = useState<string | null>(null);
+  const emEdicao = editandoId !== null;
 
   // Carrega a lista de pessoas ao abrir a tela.
   useEffect(() => {
@@ -31,15 +37,37 @@ export function PessoasPage() {
     }
   }
 
-  async function criar(evento: FormEvent) {
+  function iniciarEdicao(pessoa: Pessoa) {
+    setEditandoId(pessoa.id);
+    setNome(pessoa.nome);
+    setIdade(String(pessoa.idade));
+    setErro('');
+  }
+
+  function cancelarEdicao() {
+    setEditandoId(null);
+    setNome('');
+    setIdade('');
+  }
+
+  async function salvar(evento: FormEvent) {
     evento.preventDefault();
+
+    // Edição exige confirmação explícita antes de persistir a alteração.
+    if (emEdicao) {
+      const confirmado = window.confirm(`Salvar as alterações de "${nome}"?`);
+      if (!confirmado) return;
+    }
+
     setErro('');
     setSalvando(true);
     try {
-      await pessoasApi.criar({ nome, idade: Number(idade) });
-      // Limpa o formulário e recarrega a lista após o sucesso.
-      setNome('');
-      setIdade('');
+      if (emEdicao && editandoId) {
+        await pessoasApi.atualizar(editandoId, { nome, idade: Number(idade) });
+      } else {
+        await pessoasApi.criar({ nome, idade: Number(idade) });
+      }
+      cancelarEdicao();
       await carregar();
     } catch (e) {
       setErro(mensagemDeErro(e));
@@ -58,6 +86,8 @@ export function PessoasPage() {
     setErro('');
     try {
       await pessoasApi.remover(pessoa.id);
+      // Se a pessoa removida era a que estava sendo editada, sai do modo edição.
+      if (editandoId === pessoa.id) cancelarEdicao();
       await carregar();
     } catch (e) {
       setErro(mensagemDeErro(e));
@@ -76,11 +106,15 @@ export function PessoasPage() {
 
         <section className="card">
           <div className="card__header">
-            <h2 className="card__title">Nova pessoa</h2>
-            <p className="card__desc">Informe o nome e a idade para cadastrar.</p>
+            <h2 className="card__title">{emEdicao ? 'Editar pessoa' : 'Nova pessoa'}</h2>
+            <p className="card__desc">
+              {emEdicao
+                ? 'Altere o nome e a idade e confirme para salvar.'
+                : 'Informe o nome e a idade para cadastrar.'}
+            </p>
           </div>
           <div className="card__body">
-            <form className="form" onSubmit={criar}>
+            <form className="form" onSubmit={salvar}>
               <div className="field">
                 <label className="field__label" htmlFor="nome">
                   Nome
@@ -114,10 +148,20 @@ export function PessoasPage() {
                 />
               </div>
 
-              <div className="field">
+              <div className="field" style={{ flexDirection: 'row', gap: 10 }}>
                 <button className="btn btn--primary" type="submit" disabled={salvando}>
-                  {salvando ? 'Salvando…' : 'Cadastrar pessoa'}
+                  {salvando ? 'Salvando…' : emEdicao ? 'Salvar alterações' : 'Cadastrar pessoa'}
                 </button>
+                {emEdicao && (
+                  <button
+                    type="button"
+                    className="btn btn--ghost"
+                    onClick={cancelarEdicao}
+                    disabled={salvando}
+                  >
+                    Cancelar
+                  </button>
+                )}
               </div>
             </form>
           </div>
@@ -159,7 +203,16 @@ export function PessoasPage() {
                           </span>
                         )}
                       </td>
-                      <td className="num">
+                      <td className="num" style={{ whiteSpace: 'nowrap' }}>
+                        <button
+                          className="btn btn--ghost btn--sm"
+                          onClick={() => iniciarEdicao(pessoa)}
+                          title="Editar pessoa"
+                          style={{ marginRight: 8 }}
+                        >
+                          <IconeEditar style={{ width: 15, height: 15 }} />
+                          Editar
+                        </button>
                         <button
                           className="btn btn--danger-soft"
                           onClick={() => remover(pessoa)}

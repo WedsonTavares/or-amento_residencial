@@ -39,6 +39,21 @@ export const IconeTotais = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const IconeMenu = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...props}>
+    <path d="M4 6h16" />
+    <path d="M4 12h16" />
+    <path d="M4 18h16" />
+  </svg>
+);
+
+export const IconeFechar = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base} {...props}>
+    <path d="m6 6 12 12" />
+    <path d="m18 6-12 12" />
+  </svg>
+);
+
 export const IconeSetaCima = (props: SVGProps<SVGSVGElement>) => (
   <svg {...base} {...props}>
     <path d="M12 19V5" />
